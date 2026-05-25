@@ -1,12 +1,20 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import os
+import sys
 import shutil
 import threading
 from datetime import datetime
 from PIL import Image, ImageTk
 
-IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
+
+def _get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+IMAGES_DIR = os.path.join(_get_base_dir(), "images")
 
 
 class AddInvoiceWindow:

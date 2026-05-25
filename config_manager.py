@@ -1,7 +1,16 @@
 import os
+import sys
 import json
 
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
+
+def _get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+BASE_DIR = _get_base_dir()
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 
 DEFAULT_CONFIG = {
     "OPENAI_API_KEY": "",

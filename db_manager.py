@@ -1,9 +1,18 @@
 import sqlite3
 import os
+import sys
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "invoices.db")
-IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
+
+def _get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+BASE_DIR = _get_base_dir()
+DB_PATH = os.path.join(BASE_DIR, "invoices.db")
+IMAGES_DIR = os.path.join(BASE_DIR, "images")
 
 
 def get_connection():
