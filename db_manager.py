@@ -13,6 +13,7 @@ def get_connection():
 
 
 def init_db():
+    os.makedirs(IMAGES_DIR, exist_ok=True)
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
