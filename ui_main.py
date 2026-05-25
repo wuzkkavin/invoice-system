@@ -30,6 +30,7 @@ class MainWindow:
         tk.Button(toolbar, text="新增發票", command=self.open_add_window).pack(side=tk.LEFT, padx=3)
         tk.Button(toolbar, text="匯出 Excel", command=self.export_excel).pack(side=tk.LEFT, padx=3)
         tk.Button(toolbar, text="重新整理", command=self._load_data).pack(side=tk.LEFT, padx=3)
+        tk.Button(toolbar, text="設定", command=self.open_settings).pack(side=tk.RIGHT, padx=3)
 
         search_frame = tk.LabelFrame(self.parent, text="搜尋條件", padx=5, pady=5)
         search_frame.pack(fill=tk.X, padx=5, pady=5)
@@ -188,6 +189,10 @@ class MainWindow:
     def open_edit_window(self, invoice_id):
         from ui_edit import EditInvoiceWindow
         EditInvoiceWindow(self.parent, self.db_manager, invoice_id, callback=self._load_data)
+
+    def open_settings(self):
+        from ui_settings import SettingsWindow
+        SettingsWindow(self.parent)
 
     def do_search(self):
         amount_min = None

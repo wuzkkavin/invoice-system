@@ -3,6 +3,7 @@ import json
 import base64
 import requests
 from pathlib import Path
+import config_manager
 
 OCR_PROMPT_TAIWAN = """
 以下是一張台灣的發票或收據照片，請依照以下規則進行分析：
@@ -25,16 +26,6 @@ OCR_PROMPT_TAIWAN = """
 """
 
 
-def load_env_file(path):
-    if not os.path.exists(path):
-        return
-    for line in open(path, encoding="utf-8").read().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
-
 
 def encode_image(image_path):
     with open(image_path, "rb") as f:
@@ -43,8 +34,7 @@ def encode_image(image_path):
 
 def ocr_invoice_openai(image_path):
     """使用 OpenAI Vision API 辨識發票"""
-    load_env_file(os.path.expanduser("~/.openai.env"))
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = config_manager.get_api_key("OPENAI_API_KEY")
     if not api_key:
         raise SystemExit("Missing OPENAI_API_KEY")
 
@@ -85,8 +75,7 @@ def ocr_invoice_openai(image_path):
 
 def ocr_invoice_gemini(image_path):
     """使用 Google Gemini API 辨識發票（預設方案）"""
-    load_env_file(os.path.expanduser("~/.openai.env"))
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = config_manager.get_api_key("GEMINI_API_KEY")
     if not api_key:
         raise SystemExit("Missing GEMINI_API_KEY")
 
@@ -129,8 +118,7 @@ def ocr_invoice_gemini(image_path):
 
 def ocr_invoice_minimax(image_path):
     """使用 MiniMax-Text-01 原生 API 辨識發票"""
-    load_env_file(os.path.expanduser("~/.openai.env"))
-    api_key = os.getenv("MINIMAX_API_KEY")
+    api_key = config_manager.get_api_key("MINIMAX_API_KEY")
     if not api_key:
         raise SystemExit("Missing MINIMAX_API_KEY")
 
