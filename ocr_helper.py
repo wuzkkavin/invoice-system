@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import requests
 from pathlib import Path
 
 OCR_PROMPT_TAIWAN = """
@@ -83,11 +84,11 @@ def ocr_invoice_openai(image_path):
 
 
 def ocr_invoice_gemini(image_path):
-    """使用 Google Gemini API 辨識發票（備用方案）"""
+    """使用 Google Gemini API 辨識發票（預設方案）"""
     load_env_file(os.path.expanduser("~/.openai.env"))
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise SystemExit("Missing API key")
+        raise SystemExit("Missing GEMINI_API_KEY")
 
     from openai import OpenAI
     client = OpenAI(
@@ -126,14 +127,69 @@ def ocr_invoice_gemini(image_path):
         return {"error": "無法解析 OCR 結果", "raw": text}
 
 
-def ocr_invoice(image_path, provider="openai"):
-    """統一的發票 OCR 入口"""
+def ocr_invoice_minimax(image_path):
+    """使用 MiniMax-Text-01 原生 API 辨識發票"""
+    load_env_file(os.path.expanduser("~/.openai.env"))
+    api_key = os.getenv("MINIMAX_API_KEY")
+    if not api_key:
+        raise SystemExit("Missing MINIMAX_API_KEY")
+
+    base64_img = encode_image(image_path)
+    ext = os.path.splitext(image_path)[1].lower().replace(".", "")
+    data_url = f"data:image/{ext};base64,{base64_img}"
+
+    payload = {
+        "model": "MiniMax-Text-01",
+        "messages": [
+            {
+                "role": "user",
+                "name": "user",
+                "content": [
+                    {"type": "text", "text": OCR_PROMPT_TAIWAN},
+                    {"type": "image_url", "image_url": {"url": data_url}}
+                ]
+            }
+        ],
+        "temperature": 0.1,
+        "max_tokens": 1000
+    }
+
+    resp = requests.post(
+        "https://api.minimax.io/v1/text/chatcompletion_v2",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        },
+        json=payload,
+        timeout=60
+    )
+
+    if resp.status_code != 200:
+        return {"error": f"MiniMax API 錯誤 ({resp.status_code}): {resp.text}"}
+
+    data = resp.json()
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError):
+        return {"error": "無法解析 MiniMax 回應", "raw": data}
+
+    text = text.replace("```json", "").replace("```", "").strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {"error": "無法解析 OCR 結果", "raw": text}
+
+
+def ocr_invoice(image_path, provider="gemini"):
+    """統一的發票 OCR 入口（預設 Gemini，備用 OpenAI / MiniMax）"""
     if not os.path.exists(image_path):
         return {"error": f"圖片不存在: {image_path}"}
     if image_path.lower().endswith(".pdf"):
         return {"error": "PDF 檔案不支援 OCR，請先轉為圖片"}
     if provider == "gemini":
         return ocr_invoice_gemini(image_path)
+    if provider == "minimax":
+        return ocr_invoice_minimax(image_path)
     return ocr_invoice_openai(image_path)
 
 
