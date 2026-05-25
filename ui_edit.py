@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import os
 import shutil
+import threading
 from PIL import Image, ImageTk
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
@@ -65,6 +66,11 @@ class EditInvoiceWindow:
         self.preview_label = tk.Label(preview_frame, text="無圖片")
         self.preview_label.pack(fill=tk.BOTH, expand=True)
 
+        self.ocr_btn = tk.Button(right_frame, text="🤖 OCR 自動填入", command=self.run_ocr, bg="#e8f5e9")
+        self.ocr_btn.pack(fill=tk.X, pady=2)
+        self.ocr_status = tk.Label(right_frame, text="", fg="gray", font=("", 8))
+        self.ocr_status.pack()
+
         bottom_frame = tk.Frame(self.win)
         bottom_frame.pack(fill=tk.X, pady=5)
         tk.Button(bottom_frame, text="儲存", command=self.save).pack(side=tk.LEFT, padx=5)
@@ -116,6 +122,56 @@ class EditInvoiceWindow:
             self.new_image_path = file_path
             self.image_name_label.config(text=f"新圖片: {os.path.basename(file_path)}")
             self._show_image(file_path)
+
+    def run_ocr(self):
+        path = None
+        if hasattr(self, "new_image_path") and self.new_image_path:
+            path = self.new_image_path
+        elif self.invoice_data and self.invoice_data.get("image_path"):
+            path = os.path.join(IMAGES_DIR, self.invoice_data["image_path"])
+
+        if not path or not os.path.exists(path):
+            messagebox.showinfo("提示", "沒有可用的圖片進行 OCR")
+            return
+        if path.lower().endswith(".pdf"):
+            messagebox.showwarning("警告", "PDF 不支援 OCR")
+            return
+
+        self.ocr_btn.config(state=tk.DISABLED, text="辨識中...")
+        self.ocr_status.config(text="正在呼叫 AI 辨識...")
+
+        def do_ocr():
+            try:
+                from ocr_helper import ocr_invoice, map_ocr_to_fields
+                result = ocr_invoice(path)
+                if "error" in result:
+                    self.win.after(0, lambda: self.ocr_status.config(text=f"辨識失敗: {result['error']}", fg="red"))
+                else:
+                    fields = map_ocr_to_fields(result)
+                    self.win.after(0, lambda: self._fill_ocr_result(fields))
+                    self.win.after(0, lambda: self.ocr_status.config(text="✅ OCR 完成", fg="green"))
+            except Exception as e:
+                self.win.after(0, lambda: self.ocr_status.config(text=f"錯誤: {e}", fg="red"))
+            finally:
+                self.win.after(0, lambda: self.ocr_btn.config(state=tk.NORMAL, text="🤖 OCR 自動填入"))
+
+        threading.Thread(target=do_ocr, daemon=True).start()
+
+    def _fill_ocr_result(self, fields):
+        mapping = {
+            "invoice_no": self.entries["invoice_no"],
+            "date": self.entries["date"],
+            "seller": self.entries["seller"],
+            "seller_tax_id": self.entries["seller_tax_id"],
+            "product": self.entries["product"],
+            "amount": self.entries["amount"],
+            "tax": self.entries["tax"],
+        }
+        for key, entry in mapping.items():
+            value = fields.get(key, "")
+            if value and not entry.get():
+                entry.delete(0, tk.END)
+                entry.insert(0, value)
 
     def save(self):
         invoice_no = self.entries["invoice_no"].get().strip()
