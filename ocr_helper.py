@@ -168,12 +168,34 @@ def ocr_invoice_minimax(image_path):
         return {"error": "無法解析 OCR 結果", "raw": text}
 
 
+def pdf_to_images(pdf_path, dpi=200):
+    """將 PDF 第一頁轉為 JPEG 暫存檔，回傳圖片路徑列表"""
+    import fitz
+    doc = fitz.open(pdf_path)
+    img_paths = []
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        pix = page.get_pixmap(dpi=dpi)
+        img_path = pdf_path.replace(".pdf", f"_page{page_num}.jpg")
+        pix.save(img_path)
+        img_paths.append(img_path)
+    doc.close()
+    return img_paths
+
+
 def ocr_invoice(image_path, provider="gemini"):
     """統一的發票 OCR 入口（預設 Gemini，備用 OpenAI / MiniMax）"""
     if not os.path.exists(image_path):
         return {"error": f"圖片不存在: {image_path}"}
     if image_path.lower().endswith(".pdf"):
-        return {"error": "PDF 檔案不支援 OCR，請先轉為圖片"}
+        images = pdf_to_images(image_path)
+        if not images:
+            return {"error": "PDF 轉換圖片失敗"}
+        result = None
+        for img in images:
+            result = ocr_invoice(img, provider=provider)
+            os.remove(img)
+        return result if result else {"error": "OCR 辨識失敗"}
     if provider == "gemini":
         return ocr_invoice_gemini(image_path)
     if provider == "minimax":

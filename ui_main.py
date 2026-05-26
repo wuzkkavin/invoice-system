@@ -165,12 +165,17 @@ class MainWindow:
             return
         try:
             if path.lower().endswith(".pdf"):
-                self.current_preview_label.config(text=f"PDF: {filename}", image="")
+                import fitz
+                doc = fitz.open(path)
+                page = doc.load_page(0)
+                pix = page.get_pixmap(dpi=100)
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                doc.close()
             else:
                 img = Image.open(path)
-                img.thumbnail((120, 150))
-                self.preview_photo = ImageTk.PhotoImage(img)
-                self.current_preview_label.config(image=self.preview_photo, text="")
+            img.thumbnail((120, 150))
+            self.preview_photo = ImageTk.PhotoImage(img)
+            self.current_preview_label.config(image=self.preview_photo, text="")
         except Exception as e:
             self.current_preview_label.config(text=f"預覽失敗: {e}", image="")
 

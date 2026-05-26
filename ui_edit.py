@@ -109,12 +109,17 @@ class EditInvoiceWindow:
             return
         try:
             if path.lower().endswith(".pdf"):
-                self.preview_label.config(text="PDF 檔案（無法預覽）")
+                import fitz
+                doc = fitz.open(path)
+                page = doc.load_page(0)
+                pix = page.get_pixmap(dpi=150)
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                doc.close()
             else:
                 img = Image.open(path)
-                img.thumbnail((300, 400))
-                self.preview_photo = ImageTk.PhotoImage(img)
-                self.preview_label.config(image=self.preview_photo, text="")
+            img.thumbnail((300, 400))
+            self.preview_photo = ImageTk.PhotoImage(img)
+            self.preview_label.config(image=self.preview_photo, text="")
         except Exception as e:
             self.preview_label.config(text=f"無法預覽: {e}")
 
@@ -140,9 +145,6 @@ class EditInvoiceWindow:
 
         if not path or not os.path.exists(path):
             messagebox.showinfo("提示", "沒有可用的圖片進行 OCR")
-            return
-        if path.lower().endswith(".pdf"):
-            messagebox.showwarning("警告", "PDF 不支援 OCR")
             return
 
         self.ocr_btn.config(state=tk.DISABLED, text="辨識中...")
