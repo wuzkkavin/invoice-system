@@ -1,0 +1,1176 @@
+{
+  "nodes": [
+    {
+      "id": "file:ocr_helper.py",
+      "type": "file",
+      "name": "OCR 核心模組",
+      "filePath": "ocr_helper.py",
+      "summary": "發票 OCR 辨識核心模組，整合 Gemini/MiniMax/OpenAI 三種 AI 視覺 API，提供圖片編碼、PDF 轉圖片、統一辨識入口與結果欄位對映功能",
+      "tags": ["OCR", "AI辨識", "Gemini", "MiniMax", "OpenAI", "發票辨識", "PDF轉換"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:ui_add.py",
+      "type": "file",
+      "name": "新增發票視窗",
+      "filePath": "ui_add.py",
+      "summary": "新增發票表單視窗，提供完整欄位輸入、多圖片選取與預覽（支援縮放拖曳）、AI OCR 自動填入、圖片備份至 imageBAK 目錄",
+      "tags": ["UI", "新增發票", "表單", "圖片預覽", "OCR整合", "Tkinter"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:ui_edit.py",
+      "type": "file",
+      "name": "編輯/刪除發票視窗",
+      "filePath": "ui_edit.py",
+      "summary": "檢視、編輯與刪除發票的視窗，載入既有資料，支援更換圖片、重新執行 OCR 自動填寫空白欄位",
+      "tags": ["UI", "編輯發票", "刪除發票", "圖片預覽", "OCR整合", "Tkinter"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:ui_main.py",
+      "type": "file",
+      "name": "主視窗",
+      "filePath": "ui_main.py",
+      "summary": "系統主視窗，含發票列表 TreeView、多條件搜尋篩選、圖片縮圖預覽、Excel 匯出、以及開啟新增/編輯/設定子視窗",
+      "tags": ["UI", "主視窗", "發票列表", "搜尋", "Excel匯出", "Tkinter"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ocr_helper.py:encode_image",
+      "type": "function",
+      "name": "encode_image",
+      "filePath": "ocr_helper.py",
+      "summary": "讀取圖片檔案並轉換為 Base64 編碼字串，供 AI API 傳送",
+      "tags": ["圖片編碼", "Base64", "輔助函式"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ocr_helper.py:ocr_invoice_openai",
+      "type": "function",
+      "name": "ocr_invoice_openai",
+      "filePath": "ocr_helper.py",
+      "summary": "使用 OpenAI GPT-4o Vision API 進行發票 OCR 辨識，回傳 JSON 格式結果",
+      "tags": ["OpenAI", "GPT-4o", "Vision API", "OCR"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ocr_helper.py:ocr_invoice_gemini",
+      "type": "function",
+      "name": "ocr_invoice_gemini",
+      "filePath": "ocr_helper.py",
+      "summary": "使用 Google Gemini 2.5 Flash API 進行發票 OCR 辨識（預設方案），含自動重試機制",
+      "tags": ["Gemini", "Google AI", "Vision API", "OCR", "重試機制"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ocr_helper.py:ocr_invoice_minimax",
+      "type": "function",
+      "name": "ocr_invoice_minimax",
+      "filePath": "ocr_helper.py",
+      "summary": "使用 MiniMax VLM API 進行發票 OCR 辨識（備援方案），含自動重試機制",
+      "tags": ["MiniMax", "VLM", "Vision API", "OCR", "備援"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ocr_helper.py:pdf_to_images",
+      "type": "function",
+      "name": "pdf_to_images",
+      "filePath": "ocr_helper.py",
+      "summary": "將 PDF 檔案逐頁轉換為高解析度 JPEG 暫存圖片，回傳圖片路徑列表",
+      "tags": ["PDF轉換", "圖片", "PyMuPDF", "fitz"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ocr_helper.py:ocr_invoice",
+      "type": "function",
+      "name": "ocr_invoice",
+      "filePath": "ocr_helper.py",
+      "summary": "統一發票 OCR 入口，依指定 provider 呼叫對應 API（預設 Gemini），Gemini 失敗時自動降級至 MiniMax，PDF 自動轉圖片後遞迴處理",
+      "tags": ["OCR入口", "自動降級", "多供應商", "PDF支援"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:ocr_helper.py:map_ocr_to_fields",
+      "type": "function",
+      "name": "map_ocr_to_fields",
+      "filePath": "ocr_helper.py",
+      "summary": "將 AI 回傳的 OCR JSON 結果對應到表單七個標準欄位（invoice_no/date/seller/seller_tax_id/product/amount/tax），並清洗金額格式",
+      "tags": ["欄位對映", "資料清洗", "JSON解析"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:_get_base_dir",
+      "type": "function",
+      "name": "_get_base_dir",
+      "filePath": "ui_add.py",
+      "summary": "取得應用程式根目錄，支援 PyInstaller 打包模式",
+      "tags": ["路徑", "輔助函式", "PyInstaller"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:ui_add.py:AddInvoiceWindow",
+      "type": "class",
+      "name": "AddInvoiceWindow",
+      "filePath": "ui_add.py",
+      "summary": "新增發票的完整視窗類別，含表單輸入、多圖片選取與縮放預覽、AI OCR 自動辨識填入、圖片備份與儲存功能",
+      "tags": ["視窗", "新增發票", "OCR", "圖片預覽"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.__init__",
+      "type": "function",
+      "name": "__init__",
+      "filePath": "ui_add.py",
+      "summary": "初始化視窗，設定父視窗、資料庫管理器、回呼、圖片列表與縮放狀態，建構 UI",
+      "tags": ["初始化", "視窗設定"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._build_ui",
+      "type": "function",
+      "name": "_build_ui",
+      "filePath": "ui_add.py",
+      "summary": "建構完整 UI 佈局：左側七欄表單、按鈕列；右側 Canvas 圖片預覽（含滾輪縮放/拖曳平移）、上下張導航、OCR 按鈕、儲存/取消按鈕",
+      "tags": ["UI建構", "Tkinter", "版面配置"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.select_images",
+      "type": "function",
+      "name": "select_images",
+      "filePath": "ui_add.py",
+      "summary": "開啟檔案對話框讓使用者選取多張圖片（jpg/png/pdf），更新列表並顯示預覽",
+      "tags": ["檔案選擇", "圖片選取", "filedialog"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.clear_images",
+      "type": "function",
+      "name": "clear_images",
+      "filePath": "ui_add.py",
+      "summary": "清除已選圖片，重置 Canvas 顯示",
+      "tags": ["清除", "圖片"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.update_image_list_label",
+      "type": "function",
+      "name": "update_image_list_label",
+      "filePath": "ui_add.py",
+      "summary": "更新已選取圖片數量的標籤文字",
+      "tags": ["UI更新", "標籤"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "function",
+      "name": "show_preview",
+      "filePath": "ui_add.py",
+      "summary": "顯示目前索引的圖片預覽，支援 PDF 頁面渲染，計算適合縮放比例",
+      "tags": ["圖片預覽", "PDF渲染", "縮放"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._render_preview",
+      "type": "function",
+      "name": "_render_preview",
+      "filePath": "ui_add.py",
+      "summary": "依目前縮放等級重新繪製圖片至 Canvas，顯示縮放百分比",
+      "tags": ["Canvas繪製", "縮放", "渲染"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._on_mousewheel",
+      "type": "function",
+      "name": "_on_mousewheel",
+      "filePath": "ui_add.py",
+      "summary": "滑鼠滾輪事件處理（10%~500% 縮放範圍）",
+      "tags": ["事件處理", "滾輪縮放"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._on_drag_start",
+      "type": "function",
+      "name": "_on_drag_start",
+      "filePath": "ui_add.py",
+      "summary": "滑鼠拖曳起始事件，記錄座標並切換游標樣式",
+      "tags": ["事件處理", "拖曳"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._on_drag_move",
+      "type": "function",
+      "name": "_on_drag_move",
+      "filePath": "ui_add.py",
+      "summary": "滑鼠拖曳移動事件，平移 Canvas 上的圖片",
+      "tags": ["事件處理", "拖曳平移"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.prev_image",
+      "type": "function",
+      "name": "prev_image",
+      "filePath": "ui_add.py",
+      "summary": "切換至上一張圖片（若存在）",
+      "tags": ["導航", "上一張"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.next_image",
+      "type": "function",
+      "name": "next_image",
+      "filePath": "ui_add.py",
+      "summary": "切換至下一張圖片（若存在）",
+      "tags": ["導航", "下一張"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._get_form_data",
+      "type": "function",
+      "name": "_get_form_data",
+      "filePath": "ui_add.py",
+      "summary": "從表單欄位讀取資料，將金額/稅額轉為 float",
+      "tags": ["表單資料", "資料讀取"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._copy_image",
+      "type": "function",
+      "name": "_copy_image",
+      "filePath": "ui_add.py",
+      "summary": "複製原始圖片至 images 目錄，重新命名為「日期_發票號碼.jpg」，PDF 直接複製，其他圖片轉為 JPEG",
+      "tags": ["圖片複製", "檔案操作"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "type": "function",
+      "name": "save_invoice",
+      "filePath": "ui_add.py",
+      "summary": "驗證必填欄位（發票號碼/日期），取得表單資料、複製圖片、寫入資料庫，成功後重新命名原始檔",
+      "tags": ["儲存", "驗證", "資料庫寫入"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._rename_original",
+      "type": "function",
+      "name": "_rename_original",
+      "filePath": "ui_add.py",
+      "summary": "將已辨識的原始圖片檔更名為「已辨識登錄_原檔名」作為標記",
+      "tags": ["檔案更名", "OCR標記"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.save_and_continue",
+      "type": "function",
+      "name": "save_and_continue",
+      "filePath": "ui_add.py",
+      "summary": "儲存目前發票後自動跳至下一張圖片繼續新增，或清除表單準備下一筆",
+      "tags": ["儲存", "連續輸入"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.save_and_close",
+      "type": "function",
+      "name": "save_and_close",
+      "filePath": "ui_add.py",
+      "summary": "儲存目前發票後關閉視窗",
+      "tags": ["儲存", "關閉視窗"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "type": "function",
+      "name": "run_ocr",
+      "filePath": "ui_add.py",
+      "summary": "在背景執行緒中呼叫 ocr_helper 進行發票 OCR 辨識，完成後自動填入表單欄位並備份圖片至 imageBAK",
+      "tags": ["OCR", "多執行緒", "AI辨識", "背景處理"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._on_ocr_success",
+      "type": "function",
+      "name": "_on_ocr_success",
+      "filePath": "ui_add.py",
+      "summary": "OCR 成功回呼：將原始圖片備份至 imageBAK 目錄，檔名含日期與發票號碼",
+      "tags": ["OCR成功", "備份", "imageBAK"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._fill_ocr_result",
+      "type": "function",
+      "name": "_fill_ocr_result",
+      "filePath": "ui_add.py",
+      "summary": "將 OCR 辨識結果填入對應的表單 Entry 欄位",
+      "tags": ["OCR結果", "自動填入", "表單"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._clear_form",
+      "type": "function",
+      "name": "_clear_form",
+      "filePath": "ui_add.py",
+      "summary": "清除表單欄位（日期重設為今日），可選擇保留圖片",
+      "tags": ["清除", "表單重設"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_add.py:AddInvoiceWindow._on_close",
+      "type": "function",
+      "name": "_on_close",
+      "filePath": "ui_add.py",
+      "summary": "視窗關閉處理：解除滾輪事件繫結、銷燬視窗",
+      "tags": ["視窗關閉", "清除事件"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:_get_base_dir",
+      "type": "function",
+      "name": "_get_base_dir",
+      "filePath": "ui_edit.py",
+      "summary": "取得應用程式根目錄，支援 PyInstaller 打包模式",
+      "tags": ["路徑", "輔助函式", "PyInstaller"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:ui_edit.py:EditInvoiceWindow",
+      "type": "class",
+      "name": "EditInvoiceWindow",
+      "filePath": "ui_edit.py",
+      "summary": "編輯/刪除發票視窗類別，載入既有資料，提供欄位修改、更換圖片、重新 OCR 自動填入空白欄位、儲存更新與刪除功能",
+      "tags": ["視窗", "編輯發票", "刪除發票", "OCR"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow.__init__",
+      "type": "function",
+      "name": "__init__",
+      "filePath": "ui_edit.py",
+      "summary": "初始化編輯視窗，依 invoice_id 載入既有發票資料，建構 UI 並填入資料",
+      "tags": ["初始化", "編輯視窗", "資料載入"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._build_ui",
+      "type": "function",
+      "name": "_build_ui",
+      "filePath": "ui_edit.py",
+      "summary": "建構編輯視窗 UI：左側七欄表單、選擇新圖片按鈕；右側 Canvas 預覽、OCR 按鈕、儲存/刪除/關閉按鈕",
+      "tags": ["UI建構", "Tkinter", "版面配置"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._load_data",
+      "type": "function",
+      "name": "_load_data",
+      "filePath": "ui_edit.py",
+      "summary": "從資料庫載入發票資料填入表單欄位，若有關聯圖片則顯示預覽",
+      "tags": ["資料載入", "表單填入", "圖片顯示"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._show_image",
+      "type": "function",
+      "name": "_show_image",
+      "filePath": "ui_edit.py",
+      "summary": "從 images 或 imageBAK 目錄載入圖片並顯示於 Canvas，支援 PDF 頁面渲染",
+      "tags": ["圖片載入", "預覽", "PDF渲染"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._render_preview",
+      "type": "function",
+      "name": "_render_preview",
+      "filePath": "ui_edit.py",
+      "summary": "依目前縮放等級重新繪製圖片至 Canvas，顯示縮放百分比",
+      "tags": ["Canvas繪製", "縮放", "渲染"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._on_mousewheel",
+      "type": "function",
+      "name": "_on_mousewheel",
+      "filePath": "ui_edit.py",
+      "summary": "滑鼠滾輪縮放事件處理",
+      "tags": ["事件處理", "滾輪縮放"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._on_drag_start",
+      "type": "function",
+      "name": "_on_drag_start",
+      "filePath": "ui_edit.py",
+      "summary": "滑鼠拖曳起始事件",
+      "tags": ["事件處理", "拖曳"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._on_drag_move",
+      "type": "function",
+      "name": "_on_drag_move",
+      "filePath": "ui_edit.py",
+      "summary": "滑鼠拖曳移動平移圖片",
+      "tags": ["事件處理", "拖曳平移"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._on_close",
+      "type": "function",
+      "name": "_on_close",
+      "filePath": "ui_edit.py",
+      "summary": "視窗關閉：解除滾輪事件、銷燬視窗",
+      "tags": ["視窗關閉", "清除事件"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow.select_new_image",
+      "type": "function",
+      "name": "select_new_image",
+      "filePath": "ui_edit.py",
+      "summary": "開啟檔案對話框讓使用者更換發票圖片，更新顯示",
+      "tags": ["檔案選擇", "更換圖片"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow.run_ocr",
+      "type": "function",
+      "name": "run_ocr",
+      "filePath": "ui_edit.py",
+      "summary": "在背景執行緒中重新對發票圖片執行 OCR 辨識，自動填入空白欄位（不覆蓋已有資料）",
+      "tags": ["OCR", "多執行緒", "AI辨識", "僅填空白"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow._fill_ocr_result",
+      "type": "function",
+      "name": "_fill_ocr_result",
+      "filePath": "ui_edit.py",
+      "summary": "將 OCR 結果填入空白的表單欄位（已有值的不覆蓋）",
+      "tags": ["OCR結果", "條件填入", "保留既有資料"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow.save",
+      "type": "function",
+      "name": "save",
+      "filePath": "ui_edit.py",
+      "summary": "驗證必填欄位、組裝更新資料、若有新圖片則儲存至 images 目錄、呼叫資料庫更新並關閉視窗",
+      "tags": ["儲存", "更新", "資料庫", "圖片儲存"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_edit.py:EditInvoiceWindow.delete",
+      "type": "function",
+      "name": "delete",
+      "filePath": "ui_edit.py",
+      "summary": "確認對話框後刪除發票記錄並關閉視窗",
+      "tags": ["刪除", "確認對話框", "資料庫刪除"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:ui_main.py:MainWindow",
+      "type": "class",
+      "name": "MainWindow",
+      "filePath": "ui_main.py",
+      "summary": "系統主視窗類別，管理發票列表 TreeView、多條件搜尋篩選、圖片縮圖預覽、Excel 匯出與子視窗開啟",
+      "tags": ["主視窗", "發票列表", "搜尋", "匯出"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.__init__",
+      "type": "function",
+      "name": "__init__",
+      "filePath": "ui_main.py",
+      "summary": "初始化主視窗，設定視窗標題與大小，建構 UI 並載入發票資料",
+      "tags": ["初始化", "視窗設定"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow._build_ui",
+      "type": "function",
+      "name": "_build_ui",
+      "filePath": "ui_main.py",
+      "summary": "建構主視窗 UI：工具列（新增/匯出/重新整理/設定）、搜尋條件面板（發票號碼/賣方/品名/統編/金額區間/日期區間）、發票列表 TreeView、圖片縮圖預覽區",
+      "tags": ["UI建構", "TreeView", "搜尋面板", "Tkinter"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow._load_data",
+      "type": "function",
+      "name": "_load_data",
+      "filePath": "ui_main.py",
+      "summary": "清空 TreeView 並重新載入發票列表（可傳入搜尋結果或全部載入）",
+      "tags": ["資料載入", "TreeView更新"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.on_select_row",
+      "type": "function",
+      "name": "on_select_row",
+      "filePath": "ui_main.py",
+      "summary": "TreeView 選取事件：取得選取發票的圖片路徑並顯示縮圖預覽",
+      "tags": ["事件處理", "選取", "預覽"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow._show_preview",
+      "type": "function",
+      "name": "_show_preview",
+      "filePath": "ui_main.py",
+      "summary": "載入圖片並縮圖至 120x150 顯示於預覽標籤，支援 PDF 頁面渲染",
+      "tags": ["圖片預覽", "縮圖", "PDF渲染"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.on_double_click",
+      "type": "function",
+      "name": "on_double_click",
+      "filePath": "ui_main.py",
+      "summary": "TreeView 雙擊事件：開啟編輯發票視窗",
+      "tags": ["事件處理", "雙擊", "編輯"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.open_add_window",
+      "type": "function",
+      "name": "open_add_window",
+      "filePath": "ui_main.py",
+      "summary": "建立並顯示新增發票視窗，傳入回呼以在儲存後重新整理列表",
+      "tags": ["新增發票", "子視窗"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.open_edit_window",
+      "type": "function",
+      "name": "open_edit_window",
+      "filePath": "ui_main.py",
+      "summary": "建立並顯示編輯發票視窗，傳入 invoice_id 與回呼",
+      "tags": ["編輯發票", "子視窗"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.open_settings",
+      "type": "function",
+      "name": "open_settings",
+      "filePath": "ui_main.py",
+      "summary": "開啟設定視窗",
+      "tags": ["設定", "子視窗"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.do_search",
+      "type": "function",
+      "name": "do_search",
+      "filePath": "ui_main.py",
+      "summary": "收集搜尋條件（發票號碼/賣方/品名/統編/金額區間/日期區間），呼叫資料庫查詢並更新列表",
+      "tags": ["搜尋", "篩選", "資料庫查詢"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.clear_search",
+      "type": "function",
+      "name": "clear_search",
+      "filePath": "ui_main.py",
+      "summary": "清除所有搜尋欄位並重新載入全部資料",
+      "tags": ["清除搜尋", "重新載入"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:ui_main.py:MainWindow.export_excel",
+      "type": "function",
+      "name": "export_excel",
+      "filePath": "ui_main.py",
+      "summary": "匯出發票資料至 Excel（xlsx），支援選取特定筆或全部匯出，使用 openpyxl 設定欄寬與字型",
+      "tags": ["Excel匯出", "openpyxl", "資料備份"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:encode_image",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:ocr_invoice_openai",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:ocr_invoice_gemini",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:ocr_invoice_minimax",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:pdf_to_images",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:ocr_invoice",
+      "type": "contains"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "function:ocr_helper.py:map_ocr_to_fields",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_add.py",
+      "target": "function:ui_add.py:_get_base_dir",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_add.py",
+      "target": "class:ui_add.py:AddInvoiceWindow",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._build_ui",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.select_images",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.clear_images",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.update_image_list_label",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._render_preview",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_mousewheel",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_drag_start",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_drag_move",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.prev_image",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.next_image",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._get_form_data",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._copy_image",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._rename_original",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.save_and_continue",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.save_and_close",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_ocr_success",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._fill_ocr_result",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._clear_form",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_add.py:AddInvoiceWindow",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_close",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_edit.py",
+      "target": "function:ui_edit.py:_get_base_dir",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_edit.py",
+      "target": "class:ui_edit.py:EditInvoiceWindow",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._build_ui",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._load_data",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._show_image",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._render_preview",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._on_mousewheel",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._on_drag_start",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._on_drag_move",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._on_close",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow.select_new_image",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow.run_ocr",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow._fill_ocr_result",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow.save",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_edit.py:EditInvoiceWindow",
+      "target": "function:ui_edit.py:EditInvoiceWindow.delete",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "class:ui_main.py:MainWindow",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.__init__",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow._build_ui",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow._load_data",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.on_select_row",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow._show_preview",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.on_double_click",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.open_add_window",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.open_edit_window",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.open_settings",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.do_search",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.clear_search",
+      "type": "contains"
+    },
+    {
+      "source": "class:ui_main.py:MainWindow",
+      "target": "function:ui_main.py:MainWindow.export_excel",
+      "type": "contains"
+    },
+    {
+      "source": "file:ui_add.py",
+      "target": "file:ocr_helper.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui_edit.py",
+      "target": "file:ocr_helper.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_add.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_edit.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "file:config_manager.py",
+      "type": "imports"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_settings.py",
+      "type": "imports"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice",
+      "target": "function:ocr_helper.py:pdf_to_images",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice",
+      "target": "function:ocr_helper.py:ocr_invoice_gemini",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice",
+      "target": "function:ocr_helper.py:ocr_invoice_minimax",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice",
+      "target": "function:ocr_helper.py:ocr_invoice_openai",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice_gemini",
+      "target": "function:ocr_helper.py:encode_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice_openai",
+      "target": "function:ocr_helper.py:encode_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ocr_helper.py:ocr_invoice_minimax",
+      "target": "function:ocr_helper.py:encode_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.__init__",
+      "target": "function:ui_add.py:AddInvoiceWindow._build_ui",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.select_images",
+      "target": "function:ui_add.py:AddInvoiceWindow.update_image_list_label",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.select_images",
+      "target": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.clear_images",
+      "target": "function:ui_add.py:AddInvoiceWindow.update_image_list_label",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "target": "function:ui_add.py:AddInvoiceWindow._render_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow._on_mousewheel",
+      "target": "function:ui_add.py:AddInvoiceWindow._render_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.prev_image",
+      "target": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.next_image",
+      "target": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "target": "function:ui_add.py:AddInvoiceWindow._get_form_data",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "target": "function:ui_add.py:AddInvoiceWindow._copy_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "target": "function:ui_add.py:AddInvoiceWindow._rename_original",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_and_continue",
+      "target": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_and_continue",
+      "target": "function:ui_add.py:AddInvoiceWindow._clear_form",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_and_continue",
+      "target": "function:ui_add.py:AddInvoiceWindow.show_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.save_and_close",
+      "target": "function:ui_add.py:AddInvoiceWindow.save_invoice",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "target": "function:ocr_helper.py:ocr_invoice",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "target": "function:ocr_helper.py:map_ocr_to_fields",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "target": "function:ui_add.py:AddInvoiceWindow._on_ocr_success",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow.run_ocr",
+      "target": "function:ui_add.py:AddInvoiceWindow._fill_ocr_result",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_add.py:AddInvoiceWindow._clear_form",
+      "target": "function:ui_add.py:AddInvoiceWindow.clear_images",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.__init__",
+      "target": "function:ui_edit.py:EditInvoiceWindow._build_ui",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.__init__",
+      "target": "function:ui_edit.py:EditInvoiceWindow._load_data",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow._load_data",
+      "target": "function:ui_edit.py:EditInvoiceWindow._show_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.select_new_image",
+      "target": "function:ui_edit.py:EditInvoiceWindow._show_image",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow._show_image",
+      "target": "function:ui_edit.py:EditInvoiceWindow._render_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow._on_mousewheel",
+      "target": "function:ui_edit.py:EditInvoiceWindow._render_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.run_ocr",
+      "target": "function:ocr_helper.py:ocr_invoice",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.run_ocr",
+      "target": "function:ocr_helper.py:map_ocr_to_fields",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_edit.py:EditInvoiceWindow.run_ocr",
+      "target": "function:ui_edit.py:EditInvoiceWindow._fill_ocr_result",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.__init__",
+      "target": "function:ui_main.py:MainWindow._build_ui",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.__init__",
+      "target": "function:ui_main.py:MainWindow._load_data",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.on_select_row",
+      "target": "function:ui_main.py:MainWindow._show_preview",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.on_double_click",
+      "target": "function:ui_main.py:MainWindow.open_edit_window",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.do_search",
+      "target": "function:ui_main.py:MainWindow._load_data",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.clear_search",
+      "target": "function:ui_main.py:MainWindow._load_data",
+      "type": "calls"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.open_add_window",
+      "target": "class:ui_add.py:AddInvoiceWindow",
+      "type": "depends_on"
+    },
+    {
+      "source": "function:ui_main.py:MainWindow.open_edit_window",
+      "target": "class:ui_edit.py:EditInvoiceWindow",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ui_add.py",
+      "target": "file:ocr_helper.py",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ui_edit.py",
+      "target": "file:ocr_helper.py",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_add.py",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_edit.py",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ocr_helper.py",
+      "target": "file:config_manager.py",
+      "type": "depends_on"
+    },
+    {
+      "source": "file:ui_main.py",
+      "target": "file:ui_settings.py",
+      "type": "depends_on"
+    }
+  ]
+}

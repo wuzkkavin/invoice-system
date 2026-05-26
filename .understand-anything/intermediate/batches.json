@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 11,
+  "totalBatches": 3,
+  "exportsByPath": {
+    "main.py": [
+      "main"
+    ],
+    "config_manager.py": [
+      "_get_config_paths",
+      "load_config",
+      "save_config",
+      "_load_env_file",
+      "get_api_key"
+    ],
+    "db_manager.py": [
+      "_get_base_dir",
+      "get_connection",
+      "init_db",
+      "insert_invoice",
+      "update_invoice",
+      "delete_invoice",
+      "search_invoices",
+      "get_all_invoices",
+      "get_invoice_by_id"
+    ],
+    "ocr_helper.py": [
+      "encode_image",
+      "ocr_invoice_openai",
+      "ocr_invoice_gemini",
+      "ocr_invoice_minimax",
+      "pdf_to_images",
+      "ocr_invoice",
+      "map_ocr_to_fields"
+    ],
+    "ui_add.py": [
+      "_get_base_dir",
+      "AddInvoiceWindow"
+    ],
+    "ui_edit.py": [
+      "_get_base_dir",
+      "EditInvoiceWindow"
+    ],
+    "ui_main.py": [
+      "MainWindow"
+    ],
+    "ui_settings.py": [
+      "SettingsWindow"
+    ]
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "ocr_helper.py",
+          "language": "python",
+          "sizeLines": 245,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui_add.py",
+          "language": "python",
+          "sizeLines": 377,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui_edit.py",
+          "language": "python",
+          "sizeLines": 299,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui_main.py",
+          "language": "python",
+          "sizeLines": 294,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "ocr_helper.py": [
+          "config_manager.py"
+        ],
+        "ui_add.py": [
+          "ocr_helper.py"
+        ],
+        "ui_edit.py": [
+          "ocr_helper.py"
+        ],
+        "ui_main.py": [
+          "ui_add.py",
+          "ui_edit.py",
+          "ui_settings.py"
+        ]
+      },
+      "neighborMap": {
+        "ocr_helper.py": [
+          {
+            "path": "config_manager.py",
+            "batchIndex": 3,
+            "symbols": [
+              "_get_config_paths",
+              "load_config",
+              "save_config",
+              "_load_env_file",
+              "get_api_key"
+            ]
+          }
+        ],
+        "ui_main.py": [
+          {
+            "path": "ui_settings.py",
+            "batchIndex": 3,
+            "symbols": [
+              "SettingsWindow"
+            ]
+          },
+          {
+            "path": "main.py",
+            "batchIndex": 3,
+            "symbols": [
+              "main"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": ".gitignore",
+          "language": "ignore",
+          "sizeLines": 11,
+          "fileCategory": "config"
+        },
+        {
+          "path": "config.json",
+          "language": "json",
+          "sizeLines": 5,
+          "fileCategory": "config"
+        },
+        {
+          "path": "自動發票建檔系統.spec",
+          "language": "python",
+          "sizeLines": 40,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".gitignore": [],
+        "config.json": [],
+        "自動發票建檔系統.spec": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "config_manager.py",
+          "language": "python",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "db_manager.py",
+          "language": "python",
+          "sizeLines": 179,
+          "fileCategory": "code"
+        },
+        {
+          "path": "main.py",
+          "language": "python",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "ui_settings.py",
+          "language": "python",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "config_manager.py": [],
+        "db_manager.py": [],
+        "main.py": [
+          "db_manager.py",
+          "ui_main.py"
+        ],
+        "ui_settings.py": [
+          "config_manager.py"
+        ]
+      },
+      "neighborMap": {
+        "config_manager.py": [
+          {
+            "path": "ocr_helper.py",
+            "batchIndex": 1,
+            "symbols": [
+              "encode_image",
+              "ocr_invoice_openai",
+              "ocr_invoice_gemini",
+              "ocr_invoice_minimax",
+              "pdf_to_images",
+              "ocr_invoice",
+              "map_ocr_to_fields"
+            ]
+          }
+        ],
+        "main.py": [
+          {
+            "path": "ui_main.py",
+            "batchIndex": 1,
+            "symbols": [
+              "MainWindow"
+            ]
+          }
+        ],
+        "ui_settings.py": [
+          {
+            "path": "ui_main.py",
+            "batchIndex": 1,
+            "symbols": [
+              "MainWindow"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

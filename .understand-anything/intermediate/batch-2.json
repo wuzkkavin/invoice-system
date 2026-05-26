@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    {
+      "id": "config:.gitignore",
+      "type": "config",
+      "name": "Git 忽略規則設定檔",
+      "filePath": ".gitignore",
+      "summary": "定義 Git 版本控制應忽略的檔案與目錄，包括資料庫檔案 (invoices.db)、上傳圖片 (images/*)、建置輸出 (build/, dist/)、編譯檔 (__pycache__/, *.pyc)、API 金鑰設定檔 (config.json)、執行檔 (*.exe) 及 PyInstaller 規格檔 (*.spec)",
+      "tags": ["Git", "版本控制", "忽略規則", "設定"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:config.json",
+      "type": "config",
+      "name": "API 金鑰設定檔",
+      "filePath": "config.json",
+      "summary": "儲存三組 AI API 金鑰：OPENAI_API_KEY、GEMINI_API_KEY（已有值）、MINIMAX_API_KEY，供 ocr_helper 模組讀取以呼叫對應的 AI 視覺辨識服務",
+      "tags": ["API金鑰", "設定", "OpenAI", "Gemini", "MiniMax", "OCR"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:自動發票建檔系統.spec",
+      "type": "config",
+      "name": "PyInstaller 打包規格檔",
+      "filePath": "自動發票建檔系統.spec",
+      "summary": "PyInstaller 編譯規格，定義將 main.py 打包為單一 Windows 執行檔 (自動發票建檔系統.exe)，包含 images/ 資料目錄、隱藏匯入模組 (ocr_helper, config_manager, ui_settings, fitz, openai)、無主控台視窗模式 (console=False)",
+      "tags": ["PyInstaller", "打包", "執行檔", "建置設定", ".exe"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:自動發票建檔系統.spec",
+      "target": "file:main.py",
+      "type": "contains"
+    }
+  ]
+}

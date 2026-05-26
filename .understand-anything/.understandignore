@@ -1,0 +1,14 @@
+# .understandignore — patterns to exclude from analysis
+# From .gitignore (uncomment to exclude):
+# invoices.db
+# images/*
+# !images/.gitkeep
+# build/
+# dist/
+# *.spec
+# __pycache__/
+# *.pyc
+# config.json
+# *.exe
+# *.spec
+

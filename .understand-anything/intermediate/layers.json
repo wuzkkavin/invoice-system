@@ -1,0 +1,32 @@
+[
+  {
+    "id": "layer:entry-point",
+    "name": "進入點",
+    "description": "應用程式啟動入口，初始化資料庫並啟動 Tkinter 主循環",
+    "nodeIds": ["file:main.py"]
+  },
+  {
+    "id": "layer:ui",
+    "name": "使用者介面",
+    "description": "Tkinter 視窗層，含主視窗、新增/編輯發票表單、API 金鑰設定對話框，處理使用者互動與事件",
+    "nodeIds": ["file:ui_main.py", "file:ui_add.py", "file:ui_edit.py", "file:ui_settings.py"]
+  },
+  {
+    "id": "layer:ocr",
+    "name": "AI OCR 辨識",
+    "description": "發票影像 OCR 核心，整合 Gemini/MiniMax/OpenAI 三種 AI 視覺 API，支援自動降級與 PDF 轉圖片",
+    "nodeIds": ["file:ocr_helper.py"]
+  },
+  {
+    "id": "layer:data",
+    "name": "資料層",
+    "description": "SQLite 資料庫 CRUD 操作與 JSON 設定檔讀寫管理",
+    "nodeIds": ["file:db_manager.py", "file:config_manager.py"]
+  },
+  {
+    "id": "layer:config",
+    "name": "設定檔",
+    "description": "專案外部設定與打包配置，包含 API 金鑰、Git 忽略規則與 PyInstaller 打包規格",
+    "nodeIds": ["config:config.json", "config:自動發票建檔系統.spec", "config:.gitignore"]
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "order": 1,
+    "title": "程式入口與啟動流程",
+    "description": "應用程式的起點，設定 BASE_DIR 與 sys.path，匯入 db_manager 自動觸發資料庫初始化，建立 Tkinter 根視窗並實例化 MainWindow，最後進入主事件循環等待使用者操作",
+    "nodeIds": ["file:main.py"]
+  },
+  {
+    "order": 2,
+    "title": "SQLite 資料庫層",
+    "description": "發票資料的儲存核心，模組載入時自動建立 images 目錄與 invoices 資料表（含發票號碼、日期、賣方、統編、品名、金額、稅額、圖片路徑等欄位）。提供完整的 CRUD 操作與多條件模糊搜尋（金額區間、日期區間），刪除發票時一併清理關聯圖片檔案",
+    "nodeIds": ["file:db_manager.py"]
+  },
+  {
+    "order": 3,
+    "title": "設定檔與 API 金鑰管理",
+    "description": "負責讀寫 config.json，支援 dist/ 與專案根目錄雙路徑查找（適應 PyInstaller 打包環境），自動載入 ~/.openai.env 環境變數。提供 get_api_key() 統一入口供 OCR 模組取得 Gemini / MiniMax / OpenAI 三組 API 金鑰，無值時自動 fallback 至環境變數",
+    "nodeIds": ["file:config_manager.py"]
+  },
+  {
+    "order": 4,
+    "title": "主視窗 — 發票列表與操作中樞",
+    "description": "系統的核心操作介面，包含發票列表 TreeView、多條件搜尋面板（發票號碼/賣方/品名/統編/金額區間/日期區間）、圖片縮圖預覽區，以及新增/編輯/設定/Excel 匯出等功能按鈕。雙擊列表可開啟編輯視窗，是聯絡所有子視窗的中央調度者",
+    "nodeIds": ["file:ui_main.py"]
+  },
+  {
+    "order": 5,
+    "title": "新增發票 — 表單與 OCR 整合",
+    "description": "提供完整七欄位輸入表單（發票號碼、日期、賣方、統編、品名、金額、稅額），支援多圖片選取與 Canvas 縮放拖曳預覽（10%~500%）、PDF 自動轉圖渲染。核心功能是背景執行緒呼叫 AI OCR 自動辨識並填入表單，圖片自動備份至 imageBAK，支援連續輸入模式（存檔後自動跳下一張）",
+    "nodeIds": ["file:ui_add.py"]
+  },
+  {
+    "order": 6,
+    "title": "AI OCR 辨識引擎",
+    "description": "發票辨識的大腦，整合 Gemini 2.5 Flash（預設）、MiniMax VLM（備援）、OpenAI GPT-4o Vision 三種 AI 視覺 API。提供統一入口 ocr_invoice()：PDF 自動轉圖片後遞迴處理，Gemini 失敗時自動降級至 MiniMax，最後將 AI 回傳的 JSON 對應至表單七個標準欄位並清洗金額格式",
+    "nodeIds": ["file:ocr_helper.py"]
+  },
+  {
+    "order": 7,
+    "title": "編輯與刪除發票",
+    "description": "載入既有發票資料供檢視修改，支援更換圖片、重新執行 OCR（僅填入空白欄位，不覆蓋既有資料）、儲存更新，以及含確認對話框的刪除功能。與新增視窗共用相同的圖片預覽與縮放拖曳體驗",
+    "nodeIds": ["file:ui_edit.py"]
+  },
+  {
+    "order": 8,
+    "title": "API 金鑰設定視窗",
+    "description": "模態設定對話框，提供 Gemini / MiniMax / OpenAI 三組 API 金鑰輸入欄位，附密碼顯示切換按鈕。儲存時同步寫入 config.json 並更新環境變數，讓 OCR 模組立即可用新的金鑰",
+    "nodeIds": ["file:ui_settings.py"]
+  }
+]

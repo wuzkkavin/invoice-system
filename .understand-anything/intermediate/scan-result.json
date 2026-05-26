@@ -1,0 +1,85 @@
+{
+  "projectName": "自動發票建檔系統",
+  "description": "Desktop invoice management system with OCR recognition, built with Python/Tkinter. Supports scanning invoices via Gemini, MiniMax, and OpenAI vision APIs along with CRUD operations and Excel export.",
+  "languages": ["Python"],
+  "frameworks": ["Tkinter"],
+  "files": [
+    {
+      "path": "main.py",
+      "language": "python",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "config_manager.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "db_manager.py",
+      "language": "python",
+      "sizeLines": 179,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ocr_helper.py",
+      "language": "python",
+      "sizeLines": 245,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui_add.py",
+      "language": "python",
+      "sizeLines": 377,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui_edit.py",
+      "language": "python",
+      "sizeLines": 299,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui_main.py",
+      "language": "python",
+      "sizeLines": 294,
+      "fileCategory": "code"
+    },
+    {
+      "path": "ui_settings.py",
+      "language": "python",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "config.json",
+      "language": "json",
+      "sizeLines": 5,
+      "fileCategory": "config"
+    },
+    {
+      "path": "自動發票建檔系統.spec",
+      "language": "python",
+      "sizeLines": 40,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".gitignore",
+      "language": "ignore",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    }
+  ],
+  "complexity": "medium",
+  "importMap": {
+    "main.py": ["db_manager.py", "ui_main.py"],
+    "config_manager.py": [],
+    "db_manager.py": [],
+    "ocr_helper.py": ["config_manager.py"],
+    "ui_add.py": ["ocr_helper.py"],
+    "ui_edit.py": ["ocr_helper.py"],
+    "ui_main.py": ["ui_add.py", "ui_edit.py", "ui_settings.py"],
+    "ui_settings.py": ["config_manager.py"]
+  }
+}
