@@ -3,14 +3,18 @@ import sys
 import json
 
 
-def _get_base_dir():
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.abspath(__file__))
+def _get_config_paths():
+    frozen = getattr(sys, 'frozen', False)
+    paths = []
+    # 1) exe 同目錄 (dist/)
+    if frozen:
+        paths.append(os.path.join(os.path.dirname(sys.executable), "config.json"))
+    # 2) 程式碼目錄 (專案根目錄)
+    paths.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json"))
+    return paths
 
 
-BASE_DIR = _get_base_dir()
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+CONFIG_PATHS = _get_config_paths()
 
 DEFAULT_CONFIG = {
     "OPENAI_API_KEY": "",
@@ -20,20 +24,23 @@ DEFAULT_CONFIG = {
 
 
 def load_config():
-    if not os.path.exists(CONFIG_PATH):
-        return dict(DEFAULT_CONFIG)
-    try:
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
-        for k in DEFAULT_CONFIG:
-            cfg.setdefault(k, "")
-        return cfg
-    except (json.JSONDecodeError, OSError):
-        return dict(DEFAULT_CONFIG)
+    for p in CONFIG_PATHS:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    cfg = json.load(f)
+                for k in DEFAULT_CONFIG:
+                    cfg.setdefault(k, "")
+                return cfg
+            except (json.JSONDecodeError, OSError):
+                pass
+    return dict(DEFAULT_CONFIG)
 
 
 def save_config(config):
-    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+    # 存到第一個存在的路徑；都不存在則存到最後一個（專案根目錄）
+    p = next((x for x in CONFIG_PATHS if os.path.exists(os.path.dirname(x))), CONFIG_PATHS[-1])
+    with open(p, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
 

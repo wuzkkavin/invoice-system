@@ -23,12 +23,18 @@ class EditInvoiceWindow:
         self.invoice_id = invoice_id
         self.callback = callback
         self.invoice_data = db_manager.get_invoice_by_id(invoice_id)
+        self.original_image = None
+        self.zoom_level = 1.0
+        self.fit_zoom = 1.0
+        self._drag_x = 0
+        self._drag_y = 0
 
         self.win = tk.Toplevel(parent)
         self.win.title(f"檢視/編輯發票 #{invoice_id}")
         self.win.geometry("700x600")
         self.win.transient(parent)
         self.win.grab_set()
+        self.win.protocol("WM_DELETE_WINDOW", self._on_close)
 
         self._build_ui()
         self._load_data()
@@ -66,13 +72,19 @@ class EditInvoiceWindow:
         right_frame = tk.Frame(main_frame)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        tk.Label(right_frame, text="發票圖片").pack()
+        tk.Label(right_frame, text="發票圖片（滾輪縮放，拖曳平移）").pack()
 
-        preview_frame = tk.Frame(right_frame, bd=1, relief=tk.SUNKEN)
-        preview_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        canvas_frame = tk.Frame(right_frame, bd=1, relief=tk.SUNKEN)
+        canvas_frame.pack(fill=tk.BOTH, expand=True, pady=5)
 
-        self.preview_label = tk.Label(preview_frame, text="無圖片")
-        self.preview_label.pack(fill=tk.BOTH, expand=True)
+        self.canvas = tk.Canvas(canvas_frame, bg="#f0f0f0", highlightthickness=0)
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind("<ButtonPress-1>", self._on_drag_start)
+        self.canvas.bind("<B1-Motion>", self._on_drag_move)
+
+        self.zoom_label = tk.Label(right_frame, text="", fg="gray", font=("", 8))
+        self.zoom_label.pack()
 
         self.ocr_btn = tk.Button(right_frame, text="🤖 OCR 自動填入", command=self.run_ocr, bg="#e8f5e9")
         self.ocr_btn.pack(fill=tk.X, pady=2)
@@ -83,7 +95,7 @@ class EditInvoiceWindow:
         bottom_frame.pack(fill=tk.X, pady=5)
         tk.Button(bottom_frame, text="儲存", command=self.save).pack(side=tk.LEFT, padx=5)
         tk.Button(bottom_frame, text="刪除", command=self.delete).pack(side=tk.LEFT, padx=5)
-        tk.Button(bottom_frame, text="關閉", command=self.win.destroy).pack(side=tk.RIGHT, padx=5)
+        tk.Button(bottom_frame, text="關閉", command=self._on_close).pack(side=tk.RIGHT, padx=5)
 
     def _load_data(self):
         if not self.invoice_data:
@@ -105,23 +117,68 @@ class EditInvoiceWindow:
             return
         path = os.path.join(IMAGES_DIR, filename)
         if not os.path.exists(path):
-            self.preview_label.config(text="圖片檔案不存在")
+            path = os.path.join(IMAGES_DIR.replace("images", "imageBAK"), filename)
+        if not os.path.exists(path):
+            self.canvas.delete("all")
+            self.canvas.create_text(100, 50, text="圖片檔案不存在", fill="red", anchor=tk.NW)
             return
         try:
             if path.lower().endswith(".pdf"):
                 import fitz
                 doc = fitz.open(path)
                 page = doc.load_page(0)
-                pix = page.get_pixmap(dpi=150)
-                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                pix = page.get_pixmap(dpi=200)
+                self.original_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
                 doc.close()
             else:
-                img = Image.open(path)
-            img.thumbnail((300, 400))
-            self.preview_photo = ImageTk.PhotoImage(img)
-            self.preview_label.config(image=self.preview_photo, text="")
+                self.original_image = Image.open(path).copy()
+            fit = min(300 / self.original_image.width, 400 / self.original_image.height, 1.0)
+            self.fit_zoom = fit
+            self.zoom_level = 1.0
+            self._render_preview()
         except Exception as e:
-            self.preview_label.config(text=f"無法預覽: {e}")
+            self.canvas.delete("all")
+            self.canvas.create_text(100, 50, text=f"無法預覽: {e}", fill="red", anchor=tk.NW)
+
+    def _render_preview(self):
+        if self.original_image is None:
+            return
+        scale = self.fit_zoom * self.zoom_level
+        w = max(1, int(self.original_image.width * scale))
+        h = max(1, int(self.original_image.height * scale))
+        img = self.original_image.resize((w, h), Image.LANCZOS)
+        self.preview_photo = ImageTk.PhotoImage(img)
+        self.canvas.delete("all")
+        cx = self.canvas.winfo_width() // 2 or 150
+        cy = self.canvas.winfo_height() // 2 or 150
+        self.canvas.create_image(cx, cy, image=self.preview_photo, anchor=tk.CENTER, tags="img")
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        self.zoom_label.config(text=f"{int(self.zoom_level * 100)}%")
+
+    def _on_mousewheel(self, event):
+        if self.original_image is None:
+            return
+        factor = 1.1 if event.delta > 0 else 0.9
+        new_zoom = self.zoom_level * factor
+        if 0.1 <= new_zoom <= 5.0:
+            self.zoom_level = new_zoom
+            self._render_preview()
+
+    def _on_drag_start(self, event):
+        self._drag_x = event.x
+        self._drag_y = event.y
+        self.canvas.config(cursor="hand2")
+
+    def _on_drag_move(self, event):
+        dx = event.x - self._drag_x
+        dy = event.y - self._drag_y
+        self._drag_x = event.x
+        self._drag_y = event.y
+        self.canvas.move("img", dx, dy)
+
+    def _on_close(self):
+        self.win.unbind_all("<MouseWheel>")
+        self.win.destroy()
 
     def select_new_image(self):
         file_path = filedialog.askopenfilename(
@@ -155,13 +212,16 @@ class EditInvoiceWindow:
                 from ocr_helper import ocr_invoice, map_ocr_to_fields
                 result = ocr_invoice(path)
                 if "error" in result:
-                    self.win.after(0, lambda: self.ocr_status.config(text=f"辨識失敗: {result['error']}", fg="red"))
+                    err = result["error"]
+                    self.win.after(0, lambda: self.ocr_status.config(text="辨識失敗", fg="red"))
+                    self.win.after(0, lambda: messagebox.showerror("OCR 錯誤", err))
                 else:
                     fields = map_ocr_to_fields(result)
                     self.win.after(0, lambda: self._fill_ocr_result(fields))
                     self.win.after(0, lambda: self.ocr_status.config(text="✅ OCR 完成", fg="green"))
             except Exception as e:
-                self.win.after(0, lambda: self.ocr_status.config(text=f"錯誤: {e}", fg="red"))
+                self.win.after(0, lambda: self.ocr_status.config(text="錯誤", fg="red"))
+                self.win.after(0, lambda: messagebox.showerror("OCR 錯誤", str(e)))
             finally:
                 self.win.after(0, lambda: self.ocr_btn.config(state=tk.NORMAL, text="🤖 OCR 自動填入"))
 

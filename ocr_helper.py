@@ -36,7 +36,7 @@ def ocr_invoice_openai(image_path):
     """使用 OpenAI Vision API 辨識發票"""
     api_key = config_manager.get_api_key("OPENAI_API_KEY")
     if not api_key:
-        raise SystemExit("Missing OPENAI_API_KEY")
+        return {"error": "OPENAI_API_KEY 未設定"}
 
     from openai import OpenAI
     client = OpenAI(api_key=api_key)
@@ -77,7 +77,7 @@ def ocr_invoice_gemini(image_path):
     """使用 Google Gemini API 辨識發票（預設方案）"""
     api_key = config_manager.get_api_key("GEMINI_API_KEY")
     if not api_key:
-        raise SystemExit("Missing GEMINI_API_KEY")
+        return {"error": "GEMINI_API_KEY 未設定"}
 
     from openai import OpenAI
     client = OpenAI(
@@ -88,25 +88,34 @@ def ocr_invoice_gemini(image_path):
     base64_img = encode_image(image_path)
     ext = os.path.splitext(image_path)[1].lower().replace(".", "")
 
-    response = client.chat.completions.create(
-        model="gemini-2.5-flash",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": OCR_PROMPT_TAIWAN},
+    import time
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model="gemini-2.5-flash",
+                messages=[
                     {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/{ext};base64,{base64_img}"
-                        }
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": OCR_PROMPT_TAIWAN},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/{ext};base64,{base64_img}"
+                                }
+                            }
+                        ]
                     }
-                ]
-            }
-        ],
-        temperature=0.1,
-        max_tokens=1000
-    )
+                ],
+                temperature=0.1,
+                max_tokens=1000
+            )
+            break
+        except Exception as e:
+            if attempt < 2 and ("503" in str(e) or "429" in str(e) or "500" in str(e)):
+                time.sleep(2 ** attempt * 2)
+                continue
+            return {"error": f"Gemini API 錯誤: {e}"}
 
     text = response.choices[0].message.content
     text = text.replace("```json", "").replace("```", "").strip()
@@ -117,49 +126,40 @@ def ocr_invoice_gemini(image_path):
 
 
 def ocr_invoice_minimax(image_path):
-    """使用 MiniMax-Text-01 原生 API 辨識發票"""
+    """使用 MiniMax VLM (vision) API 辨識發票"""
     api_key = config_manager.get_api_key("MINIMAX_API_KEY")
     if not api_key:
-        raise SystemExit("Missing MINIMAX_API_KEY")
+        return {"error": "MINIMAX_API_KEY 未設定"}
 
     base64_img = encode_image(image_path)
     ext = os.path.splitext(image_path)[1].lower().replace(".", "")
     data_url = f"data:image/{ext};base64,{base64_img}"
 
-    payload = {
-        "model": "MiniMax-Text-01",
-        "messages": [
-            {
-                "role": "user",
-                "name": "user",
-                "content": [
-                    {"type": "text", "text": OCR_PROMPT_TAIWAN},
-                    {"type": "image_url", "image_url": {"url": data_url}}
-                ]
-            }
-        ],
-        "temperature": 0.1,
-        "max_tokens": 1000
-    }
-
-    resp = requests.post(
-        "https://api.minimax.io/v1/text/chatcompletion_v2",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        },
-        json=payload,
-        timeout=60
-    )
-
-    if resp.status_code != 200:
-        return {"error": f"MiniMax API 錯誤 ({resp.status_code}): {resp.text}"}
+    import time
+    for attempt in range(3):
+        resp = requests.post(
+            "https://api.minimax.io/v1/coding_plan/vlm",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "prompt": OCR_PROMPT_TAIWAN,
+                "image_url": data_url
+            },
+            timeout=60
+        )
+        if resp.status_code == 200:
+            break
+        if attempt < 2 and resp.status_code in (429, 500, 502, 503):
+            time.sleep(2 ** attempt * 2)
+            continue
+        return {"error": f"MiniMax API 錯誤 ({resp.status_code}): {resp.text[:200]}"}
 
     data = resp.json()
-    try:
-        text = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError):
-        return {"error": "無法解析 MiniMax 回應", "raw": data}
+    text = data.get("content", "")
+    if not text:
+        return {"error": "MiniMax 回應無內容", "raw": data}
 
     text = text.replace("```json", "").replace("```", "").strip()
     try:
@@ -168,15 +168,17 @@ def ocr_invoice_minimax(image_path):
         return {"error": "無法解析 OCR 結果", "raw": text}
 
 
-def pdf_to_images(pdf_path, dpi=200):
-    """將 PDF 第一頁轉為 JPEG 暫存檔，回傳圖片路徑列表"""
+def pdf_to_images(pdf_path, dpi=300):
+    """將 PDF 轉為 JPEG 暫存檔（檔名加 ~ 前綴），回傳圖片路徑列表"""
     import fitz
     doc = fitz.open(pdf_path)
     img_paths = []
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
         pix = page.get_pixmap(dpi=dpi)
-        img_path = pdf_path.replace(".pdf", f"_page{page_num}.jpg")
+        base = os.path.basename(pdf_path)
+        name = os.path.splitext(base)[0]
+        img_path = os.path.join(os.path.dirname(pdf_path), f"~{name}_page{page_num}.jpg")
         pix.save(img_path)
         img_paths.append(img_path)
     doc.close()
@@ -184,7 +186,7 @@ def pdf_to_images(pdf_path, dpi=200):
 
 
 def ocr_invoice(image_path, provider="gemini"):
-    """統一的發票 OCR 入口（預設 Gemini，備用 OpenAI / MiniMax）"""
+    """統一的發票 OCR 入口（預設 Gemini，自動降級 MiniMax）"""
     if not os.path.exists(image_path):
         return {"error": f"圖片不存在: {image_path}"}
     if image_path.lower().endswith(".pdf"):
@@ -197,7 +199,13 @@ def ocr_invoice(image_path, provider="gemini"):
             os.remove(img)
         return result if result else {"error": "OCR 辨識失敗"}
     if provider == "gemini":
-        return ocr_invoice_gemini(image_path)
+        result = ocr_invoice_gemini(image_path)
+        if "error" in result:
+            fallback = ocr_invoice_minimax(image_path)
+            if "error" not in fallback:
+                return fallback
+            return result
+        return result
     if provider == "minimax":
         return ocr_invoice_minimax(image_path)
     return ocr_invoice_openai(image_path)

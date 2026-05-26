@@ -12,7 +12,7 @@ class MainWindow:
         self.parent = parent
         self.db_manager = db_manager
 
-        self.parent.title("華葳集成自動發票系統 - by Wuzk")
+        self.parent.title("自動發票系統 Ver 0.1 By 吳治綱 Copyright 2026")
         self.parent.geometry("1000x600")
 
         self.search_entries = {}
