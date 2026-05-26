@@ -322,7 +322,10 @@ class AddInvoiceWindow:
                 if "error" in result:
                     err = result["error"]
                     self.win.after(0, lambda: self.ocr_status.config(text="辨識失敗", fg="red"))
-                    self.win.after(0, lambda: messagebox.showerror("OCR 錯誤", err))
+                    api_msg = ""
+                    if "API_KEY 未設定" in err or "API 錯誤" in err or "API" in err:
+                        api_msg = "\n\n請輸入有效的 API Key，本軟體僅支援谷歌、Minimax 以及 OpenAI\n\n吳治綱 關心的提醒您，感恩唷！！"
+                    self.win.after(0, lambda e=err, a=api_msg: messagebox.showerror("OCR 錯誤", f"{e}{a}"))
                 else:
                     fields = map_ocr_to_fields(result)
                     self.win.after(0, lambda: self._fill_ocr_result(fields))
@@ -330,7 +333,8 @@ class AddInvoiceWindow:
                     self.win.after(0, lambda: self.ocr_status.config(text="✅ OCR 完成", fg="green"))
             except Exception as e:
                 self.win.after(0, lambda: self.ocr_status.config(text="錯誤", fg="red"))
-                self.win.after(0, lambda: messagebox.showerror("OCR 錯誤", str(e)))
+                api_msg = "\n\n請輸入有效的 API Key，本軟體僅支援谷歌、Minimax 以及 OpenAI\n\n吳治綱 關心的提醒您，感恩唷！！"
+                self.win.after(0, lambda e=str(e), a=api_msg: messagebox.showerror("OCR 錯誤", f"{e}{a}"))
             finally:
                 self.win.after(0, lambda: self.ocr_btn.config(state=tk.NORMAL, text="🤖 OCR 自動辨識"))
 
